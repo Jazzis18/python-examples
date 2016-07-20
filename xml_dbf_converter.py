@@ -2,11 +2,11 @@
 #-*- coding: cp1251 -*-
 
 """
-Конвертирует XML в DBF, либо наоборот.
+Конвертирует XML в DBF и наоборот.
 Скрипт принимает желаемый способ конвертации,
 входное имя файла и желаемое выходное имя файла.
 Затем парсит данные из входного файла, создает
-выходной файл и записывает полученные данные.
+выходной файл и записывает в него полученные данные.
 Python 2.7.12
 """
 
@@ -18,7 +18,8 @@ import codecs
 def check_file_extension(filename, ext):
     """
     Проверяет указанное расширение и если
-    оно не совпадает, выводит справку.
+    оно не совпадает, выводит справку и
+    прерывает выполнение скрипта.
     """
     if not filename.lower().endswith("." + ext):
         print_help()
@@ -29,11 +30,11 @@ def print_err(err = "Произошла ошибка!"):
     Выводит ошибку и прерывает выполнение
     скрипта.
     """
-    print("[Ошибка] {0}".format(err))
+    print("[Ошибка] {}".format(err))
     #print_help()
     sys.exit(1)
 
-def print_length_and_lines_count(filename):
+def print_chars_and_lines_count(filename):
     """
     Выводит общее кол-во символов и строк
     в файле.
@@ -44,7 +45,7 @@ def print_length_and_lines_count(filename):
             chars += len(line)
             lines += 1
 
-    print "\nchars: {0}, lines: {1}".format(chars, lines)
+    print "\nchars: {}, lines: {}".format(chars, lines)
 
 def print_help():
     """
@@ -57,7 +58,7 @@ def print_help():
           "\nПример 1: "
           "python "+ sys.argv[0] +" xml2dbf database.xml"
           "\nПример 2: "
-          "python "+ sys.argv[0] +" xml2dbf database.xml database.dbf")
+          "python "+ sys.argv[0] +" dbf2xml database.dbf database.xml")
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -71,8 +72,8 @@ if __name__ == "__main__":
                 else:
                     filename = sys.argv[2].rsplit(".",1)[0] + ".dbf"
 
-                print("\nВходной файл: {0}".format(sys.argv[2]))
-                print("Выходной файл: {0}".format(filename))
+                print("\nВходной файл: {}".format(sys.argv[2]))
+                print("Выходной файл: {}".format(filename))
 
                 try:
                     tree = etree.parse(sys.argv[2])
@@ -80,7 +81,7 @@ if __name__ == "__main__":
                     print_err()
 
                 root = tree.getroot()
-                    
+
                 FIELD_NAMES = [i.tag for i in list(root[0])]
                 SCHEMA = tuple([(i.tag, "C", 235) for i in list(root[0])])
 
@@ -97,7 +98,7 @@ if __name__ == "__main__":
 
                 db.close()
 
-                print_length_and_lines_count(filename)
+                print_chars_and_lines_count(filename)
                 print("Готово!")
 
             elif sys.argv[1] == 'dbf2xml':
@@ -107,10 +108,10 @@ if __name__ == "__main__":
                     check_file_extension(sys.argv[3], "xml")
                     filename = sys.argv[3]
                 else:
-                    filename = sys.argv[2].rsplit(".",1)[0] + ".xml"
-                    
-                print("\nВходной файл: {0}".format(sys.argv[2]))
-                print("Выходной файл: {0}".format(filename))
+                    filename = sys.argv[2].rsplit(".", 1)[0] + ".xml"
+
+                print("\nВходной файл: {}".format(sys.argv[2]))
+                print("Выходной файл: {}".format(filename))
 
                 try:
                     db = dbf.Dbf(sys.argv[2])
@@ -129,10 +130,10 @@ if __name__ == "__main__":
 
                 doc = etree.tostring(root, xml_declaration=True, encoding="UTF-8", pretty_print=True)
 
-                with codecs.open(filename, "w", "utf-8-sig") as fp:
-                    fp.write(doc)
+                with codecs.open(filename, "w", "utf-8-sig") as f:
+                    f.write(doc)
 
-                print_length_and_lines_count(filename)
+                print_chars_and_lines_count(filename)
                 print("Готово!")
 
             else:
