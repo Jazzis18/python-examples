@@ -14,6 +14,7 @@ from lxml import etree
 from dbfpy import dbf
 import sys
 import codecs
+import argparse
 
 def check_file_extension(filename, ext):
     """
